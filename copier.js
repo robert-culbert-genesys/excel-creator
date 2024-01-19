@@ -1,5 +1,4 @@
 const ExcelJS = require('exceljs');
-const fs = require('fs');
 
 async function copyWorksheet(originalWorkbook, targetWorkbook, numCopies) {
   // Ensure the original workbook has at least one worksheet
@@ -23,13 +22,10 @@ async function copyWorksheet(originalWorkbook, targetWorkbook, numCopies) {
 }
 
 async function createCopies() {
-  const originalStream = fs.createReadStream('large_excel_file3.xlsx');
   const originalWorkbook = new ExcelJS.Workbook();
-  await originalWorkbook.xlsx.read(originalStream);
+  await originalWorkbook.xlsx.readFile('large_excel_file3.xlsx');
 
-  const targetWorkbook = new ExcelJS.stream.xlsx.WorkbookWriter({
-    stream: fs.createWriteStream('copies_large_excel_file.xlsx'),
-  });
+  const targetWorkbook = new ExcelJS.Workbook();
 
   const numCopies = 1;
 
@@ -37,9 +33,9 @@ async function createCopies() {
     await copyWorksheet(originalWorkbook, targetWorkbook, 1);
   }
 
-  await targetWorkbook.commit();
+  await targetWorkbook.xlsx.writeFile('large_excel_file_with_copies.xlsx');
 
-  console.log(`Created ${numCopies} copies. Excel file saved as "copies_large_excel_file.xlsx"`);
+  console.log(`Created ${numCopies} copies. Excel file saved as "large_excel_file_with_copies.xlsx"`);
 }
 
 // Call the function to create copies
