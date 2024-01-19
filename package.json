@@ -1,0 +1,22 @@
+{
+  "name": "excel-creator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robert-culbert-genesys/excel-creator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robert-culbert-genesys/excel-creator/issues"
+  },
+  "homepage": "https://github.com/robert-culbert-genesys/excel-creator#readme",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
