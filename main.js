@@ -1,4 +1,4 @@
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const fs = require('fs');
 
 function generateRandomString(length) {
@@ -19,53 +19,52 @@ function generateRandomFloat(min, max) {
   return (Math.random() * (max - min) + min).toFixed(2);
 }
 
-function generateExcel() {
-  const workbook = XLSX.utils.book_new();
+async function generateAndSaveExcel() {
+  const stream = fs.createWriteStream('large_excel_file.xlsx');
 
-  // Define parameters
+  const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
+    stream,
+    useStyles: true,
+  });
+
   const numWorksheets = 2;
-  const rowsPerWorksheet = 80000;
-  const colsPerRow = 10;
-  const batchSize = 10;
+  const rowsPerWorksheet = 1000000;
 
   for (let sheetIndex = 0; sheetIndex < numWorksheets; sheetIndex++) {
-    const worksheet = XLSX.utils.aoa_to_sheet([]);
+    const worksheet = workbook.addWorksheet(`Sheet${sheetIndex + 1}`);
 
-    for (let batchIndex = 0; batchIndex < rowsPerWorksheet; batchIndex += batchSize) {
-      const batch = [];
+    for (let rowIndex = 0; rowIndex < rowsPerWorksheet; rowIndex++) {
+      const row = [];
 
-      for (let rowIndex = batchIndex; rowIndex < batchIndex + batchSize && rowIndex < rowsPerWorksheet; rowIndex++) {
-        const row = [];
-        for (let colIndex = 0; colIndex < colsPerRow; colIndex++) {
-          const randomType = Math.floor(Math.random() * 3);
+      for (let colIndex = 0; colIndex < 10; colIndex++) {
+        const randomType = Math.floor(Math.random() * 3);
 
-          switch (randomType) {
-            case 0:
-              row.push(generateRandomString(100));
-              break;
-            case 1:
-              row.push(generateRandomTimestamp());
-              break;
-            case 2:
-              row.push(generateRandomFloat(0, 100));
-              break;
-          }
+        switch (randomType) {
+          case 0:
+            row.push(generateRandomString(100));
+            break;
+          case 1:
+            row.push(generateRandomTimestamp());
+            break;
+          case 2:
+            row.push(generateRandomFloat(0, 100));
+            break;
         }
-
-        batch.push(row);
       }
 
-      XLSX.utils.sheet_add_aoa(worksheet, batch, { origin: -1 });
+      worksheet.addRow(row);
     }
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, `Sheet${sheetIndex + 1}`);
+    // Commit the rows to the worksheet to avoid excessive memory usage
+    await worksheet.commit();
   }
 
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  // Commit the workbook to save it
+  await workbook.commit();
+  stream.end();
 
-  fs.writeFileSync('large_excel_file.xlsx', Buffer.from(excelBuffer));
   console.log('Excel file saved as "large_excel_file.xlsx"');
 }
 
 // Call the function to generate and save the Excel file
-generateExcel();
+generateAndSaveExcel();
