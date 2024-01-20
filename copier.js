@@ -18,24 +18,37 @@ async function copyWorksheet(originalWorkbook, targetWorkbook, numCopies) {
         newRow.getCell(colNumber).style = cell.style;
       });
     });
+
+    // Commit the copied worksheet to the target workbook to avoid excessive memory usage
+    await copiedWorksheet.commit();
   }
 }
 
 async function createCopies() {
+
+  let currentTime = new Date().toLocaleTimeString();
+
+  console.log(`Starting at Time: ${currentTime}`);
+
   const originalWorkbook = new ExcelJS.Workbook();
   await originalWorkbook.xlsx.readFile('large_excel_file3.xlsx');
 
-  const targetWorkbook = new ExcelJS.Workbook();
+  const targetWorkbook = new ExcelJS.stream.xlsx.WorkbookWriter({
+    stream: require('fs').createWriteStream('large_excel_file_with_copies50_10_6.xlsx'),
+  });
 
-  const numCopies = 1;
+  const numCopies = 50;
 
   for (let copyIndex = 0; copyIndex < numCopies; copyIndex++) {
     await copyWorksheet(originalWorkbook, targetWorkbook, 1);
   }
 
-  await targetWorkbook.xlsx.writeFile('large_excel_file_with_copies.xlsx');
+  // Commit the target workbook to save it
+  await targetWorkbook.commit();
 
-  console.log(`Created ${numCopies} copies. Excel file saved as "large_excel_file_with_copies.xlsx"`);
+  currentTime = new Date().toLocaleTimeString();
+
+  console.log(`Created ${numCopies} copies. Excel file saved as "large_excel_file_with_copies100_10_6.xlsx". Time: ${currentTime}`);
 }
 
 // Call the function to create copies
