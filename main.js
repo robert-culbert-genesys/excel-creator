@@ -20,14 +20,18 @@ function generateRandomFloat(min, max) {
 }
 
 async function generateAndSaveExcel() {
-  const stream = fs.createWriteStream('large_excel_file.xlsx');
+    let currentTime = new Date().toLocaleTimeString();
+
+  console.log(`Starting at Time: ${currentTime}`);
+
+  const stream = fs.createWriteStream('large_excel_file20.xlsx');
 
   const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
     stream,
     useStyles: true,
   });
 
-  const numWorksheets = 2;
+  const numWorksheets = 20;
   const rowsPerWorksheet = 1000000;
 
   for (let sheetIndex = 0; sheetIndex < numWorksheets; sheetIndex++) {
@@ -63,7 +67,11 @@ async function generateAndSaveExcel() {
   await workbook.commit();
   stream.end();
 
-  console.log('Excel file saved as "large_excel_file.xlsx"');
+  currentTime = new Date().toLocaleTimeString();
+
+  console.log(`Starting at Time: ${currentTime}`);
+
+  console.log('Excel file saved as "large_excel_file20.xlsx"');
 }
 
 // Call the function to generate and save the Excel file
